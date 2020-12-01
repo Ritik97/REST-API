@@ -1,0 +1,109 @@
+Rest APIs: {
+
+Thus far, we have been building the node app in which the server generates the dynamic html pages. But not every
+application needs the view to be rendered by the server. They just want the data. Ex- Mobile App (or) SPA.
+These apps are totally de-coupled from the backend. For these kind of apps, REST API is the solution.
+In building the REST API, only the response & and request data changes. The general server-side logic like 
+quering the db and all will remain the same. Also, we'll no longer be using the Session based authentication.
+
+}
+
+Routing: {
+
+    Earlier, our application has some nav links and buttons which when clicked upon, the req goes on a particular
+    URL. 
+    On our REST API, we will define something called the API Endpoints. These Endpoints are a combination of an http 
+    verb and a path Ex- GET/posts/:postId. We also define the server-side logic which should excute once a req is 
+    sent to these endpoints. We use the async js like 'fetch' or 'axios' to make a req to these endpoints, from the 
+    Client Side. 
+
+HTTP Verbs: {
+
+    When working with the html forms and links, we have access to only 'GET' & 'POST' verb. However, with async js
+    like 'fetch api or axios', we have access to many http verbs. Same goes for building mobile apps.
+    
+    1.GET => Getting a resource from the server. 
+    2.POST => Post a resource to the server i.e. create or append Resource.
+    3.PUT => Put a resource to the server i.e. create or overwrite Resource.
+    4.PATCH => Updating parts of a resource.
+    5.DELETE => Deleting a resource.
+    6.Options => Determine whether follow-up request is allowed(sent automatically by the client)  
+
+  }
+
+}
+
+Sending a response: {
+
+    In REST API, we no longer be using res.render() as we won't be sending any html as a response.
+    We'll use res.json() which is a method provided by express, to send json data, with the right headers being 
+    set. We can pass normal js object to res.json() which'll be converted to json data.
+    Ex-> res.status(200).json({
+        posts: [{
+            id: 1,
+            title: 'first post',
+            body: 'this is my first post'
+        },
+        {
+        id: 1,
+            title: 'first post',
+            body: 'this is my first post'
+        }]
+    }); 
+
+Note: While sending a response, we must set the status code explicitly. 200 would be default. 
+Status Codes become very important while sending a json response as it is through status code, the client decides
+whether the operation succeded and render a normal page, or an error happened and redirect to the error page.
+
+} 
+
+Parse Incoming json data: {
+
+    Will use the middleware 'app.use(bodyparser.json())' to parse json data on the req obj. The data then can be
+    extracted as 'req.body.title'
+
+}
+
+Dealing with CORS Errors: {
+
+    Cross Origin Resource Sharing.
+    While building apps where both client & server same the same domain i.e. we sent a req to the server & the server
+    returns a view as response. There our app won't face any issues. Problem arises when the client and the server
+    runs on two diff domains i.e. 'myapp.com' and 'myapi.com', then a CORS error occurs coz this is a security 
+    machinism provided by the browser that resourses can't be shared across Domain/Origin/Servers.   
+    However, while building the REST API, we want the resourses to be shared across origins.
+    CORS Erros should always be fixed on the server side. For that, we'll set some headers to our res objects,
+    so that the browser allows the incoming res from diff domains.
+    Before the res reaches the routes middleware, we will define a middleware which sets some headers to the res
+    object i.e. app.use((req, res, next) => {
+
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        next();
+        note: Here, firstly we defined the origin with which, resourses could be shared. '*' means allow all domains.
+        We can also specify a single or a list of allowed domains. ex=> 'myshop.com'
+        Then we specified the http methods which are allowed to use by the client.
+        Lastly, we specified some headers that our client is allowed to set on the req obj.
+        With these configurations, the CORS will be disabled by the browser
+    });
+}
+
+Sending a Post Req: {
+
+    fetch('localhost:3000/feed/post', {
+        method: 'POST',
+        body: JSON.stringify({
+            title: 'First Post',
+            content: 'This is my first Post'
+        }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then(res => res.json())
+    .then(resData=> console.log(resData))
+
+    Note: Everytime a req is made from the client, two requests are sent. The 1st one is a 'Options' req, which will 
+    sent automatically by the client, to check whether the actual req made by the user ex=> 'POST', 'GET' etc, is 
+    allowed by the server or not.
+}
