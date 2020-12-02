@@ -107,3 +107,56 @@ Sending a Post Req: {
     sent automatically by the client, to check whether the actual req made by the user ex=> 'POST', 'GET' etc, is 
     allowed by the server or not.
 }
+
+How Authentication Works: {
+ 
+  In the REST world, we don't store any history of the user on the server. Therefore, we'll not be using the 
+Session based authentication. Instead, after checking the validity of the user, we will return a token to the 
+client as a response. This token will then be stored in the browser and will be sent with every subsequent req,
+which targets a resourse that needs authentication, to the server.
+ This token can only be validated by the server and if user tries to fake it on the browser side, the server will
+ detect that as the server uses some algorithm to create that token and user don't know the private key used for 
+ generating the token. This key is stored only in the server 
+
+ This token contains some (js data) -> json data + signature(created on the server with a special private key).
+ So, json data + signature = JWT. 
+ On the client side, we will then attach this token to the header of those reqs, which targets a resourse on the
+ server that requires authentication. 
+}
+
+JWT: {
+
+    Install and import the 'jsonwebtoken' package.
+    Then, inside the login-handler, after checking whether the user is valid or not, 
+    const token = sign({
+    email: loadeduser.email, userId: loadeduser._id.toSring()
+    }, 'somesupersecret', 
+    { expiresIn: '1h' });
+
+    res.status(200).json({ token: token, userid: loadeduser._id.toSring() })
+
+}
+
+Verifing the token on the server: {
+    inside the is-auth middleware, import the jwt package. Then extract the token from the req header.
+    
+    const token = req.get('Authorization').split(' ')[1]
+    let decode;
+    try{
+        decodeToken = jwt.verify(token, 'somesupersecret')
+    } catch(err) {
+
+        err.statuscode = 500
+        throw err;
+    }
+
+    if(!decodeToken){
+        const error = new Error('Not Authenticated');
+        error.statuscode = 401
+        throw error;
+    }
+    req.userId = decodeToken.userId
+    next();
+
+    Now simply add the is-auth middleware to all the routes, as did in the shop app 
+}

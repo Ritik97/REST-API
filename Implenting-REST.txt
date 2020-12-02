@@ -1,0 +1,13 @@
+Planning the API: {
+ In our blogging application, we'll be needing endpoints for:-
+ 1. Getting a single post.
+ 2. Getting all Posts.
+ 3. Creating a Post.
+ 4. Editing a Post.
+ 5. Deleting a Post.
+ 6. User SignIn.
+ 7. User LogIn.
+ 8. Viewing the status of the user.
+ 9. Editing the status of the user.    
+}
+

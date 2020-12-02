@@ -1,0 +1,46 @@
+Web Sockets: {
+    Its a real-time web service, a protocol, which allows us to build realtime web-services. 'Socket.io' is 
+    the library used for adding realtime communication to our node app.
+}
+
+How It Works: {
+    In a typical node app, the user will send a req to the server and the server will return a response for that
+    req, either as json data or as a rendered view. So, the user always have to make a req, to get a response.
+
+    However, there are senarios where the server needs to send some res to the user or users, even if the user
+    didn't make a req to the server. Ex=> In a chat app, user-1 sends some msg to user-2 which goes to the server 
+    and then is sent to user-2 as a response, even though user-2 didn'n make any req to the server.
+    Here, we'll use the web socket protocol, instead of http. Web Socket is built upon http.
+}
+
+http vs web sockets: {
+    In http, the communnication btw client & server happens via req-res. 
+    In Web Sockets, it is push data. The server pushes data to the client.
+    We can use both http and web-sockets together, in a single app.
+}
+
+socket.io {
+    This is one of the most popular package for using web-socket protocol.
+
+    Adding it to our project: {
+        We've to add socket.io both on the client and server side to enable communication btw client and 
+        server via web-sockets.
+
+    1. Install the package called 'socket.io'.
+    2. Inside the main file, which starts the server(app.js), we will setup the 'socket.io', just as we setup
+        our other routes for noraml http reqs. Since both uses diff protocols, web sockets req won't interfare
+        with normal http req.    
+    3. Setting up the connection: {
+        Once we connect to our db, we start our server i.e. app.listen(3000).  After starting the server, we'll 
+        setup our connection => const io = require('socket.io'); 
+        This package exposes a function which expects our server argument. Therefore,
+        const server = app.listen(3000);
+        const io = require('socket.io')(server)
+
+        As mention above that the web-sockets is built upon http, we have passed our server to it, since our server
+        uses http.
+
+        Now the 'io' object gives us some event listeners 
+    }    
+    }
+}
