@@ -40,7 +40,68 @@ socket.io {
         As mention above that the web-sockets is built upon http, we have passed our server to it, since our server
         uses http.
 
-        Now the 'io' object gives us some event listeners 
+        Now the 'io' object gives us some event listeners. Ex-> 
+        io.on('connection', socket => {
+            console.log('Client Connected');
+        });  Now, the 'on' event-listener will be fired everytime a new client is connected.
     }    
     }
+
+socket.io-client: {
+    After setting Socket.IO on the server, we'll also install and import 'socket.io-client' on the client side. 
+    const openSocket = require('socket.io-client');
+    Then inside the 
+    'componentDidMount', add openSocket('http://localhost:3000'); 
+
+    With this setup, the socket connection btw the client & server gets established. Now for every new req, the io.on will 
+    execute.
+ }
+
+Identifing Potential: {
+    We can add the functionality where user-1 creats a post and user-2 instantly see it. For that, we have to tweek both front-end
+    and back-end. We will define a function in the 'feed.js' to update the dom instantly, whenever a post is created.
+    But right now, we are not calling this function. The idea is to call this function whenever a new post is created, by some 
+    other client. 
+    For that, inside our REST API-> feed.js-> createPost handler, the idea is to inform all clients, whenever a post is created.
+    For that, we'll be needing the io connection which we setup in 'app.js'. 
+} 
+
+Sharing IO Instance Across Files: {
+    Will create a separate 'socket.io' file. 
+    const io;
+
+    module.exports = {
+        init: httpServer => {
+        io = require('socket.io')(httpServer)
+        return io;
+        },
+        getIO: () => {
+            if(!io) 
+            throw new error('Socket.io not initialized')
+            return io;
+        }
+        Now we can simply import this file to use the 'io' instance at any place in our app.
+    };
+
+    Inside the app.js, 
+    const server = app.listen(3000);
+        const io = require('./socket').init(server)
+
+}
+    Now, In the 'feed.js' of REST API, in the 'createPost' handler, we'll first import the 'socket.io' file. Then right after we
+    create and save our post, we will, before sending a response, we will inform all other clients about the new post.
+    io.getIO().emit('posts' {action: 'create', post: post})
+    The event now is 'posts' and the action is 'create' and post is our post object. Here, 'emit' will send the post to all our
+    client.
+
+    Adjust the front-end: {
+        Inside the 'componentDIdMount', we will listen to the data coming from 'socket.io'. 
+        const socket = openSocket('http://localhost:3000');
+        socket.on('posts', data => {
+            if(data === 'create') {
+                this.addPost(data.post);
+            }
+        })
+    }
+ We can use the io instance for deleting and updating the post too.   
 }
